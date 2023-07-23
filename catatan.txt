@@ -1,0 +1,5 @@
+php artisan make:migration Post
+php artisan migrate
+php artisan make:livewire Post/Add
+php artisan make:livewire Post/PostList
+php artisan make:livewire Post/Edit
