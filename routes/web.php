@@ -19,6 +19,8 @@ Route::get('/', function () {
 
 Route::view('post/add', 'posts.add');
 Route::view('post/list', 'posts.list');
+Route::view('post/perolehan-list', 'posts.perolehan');
+Route::view('post/peserta-list', 'posts.peserta');
 Route::get('post/edit/{id}', function ($id) {
     return view('posts.edit', ['id' => $id]);
 });

@@ -7,28 +7,37 @@ use App\Models\Post;
 
 class Add extends Component
 {
-    public $title;
-    public $content;
+    public $kota;
+    public $desa;
+    public $kelompok;
+    public $jumlah;
+    public $position;
+    public $count_activities;
 
     public function render()
     {
+        $this->count_activities = Post::count();
         return view('livewire.post.add');
     }
 
     public function save()
     {
         $input = $this->validate([
-            'title' => 'required',
-            'content' => 'required',
+            'kota' => 'required',
+            'desa' => 'required',
+            'kelompok' => 'required',
         ]);
 
         $post = new Post();
-        $post->title = $this->title;
-        $post->content = $this->content;
+        $post->kota = $this->kota;
+        $post->desa = $this->desa;
+        $post->kelompok = $this->kelompok;
+        $post->jumlah = $this->jumlah;
+        $post->position = $this->count_activities + 1;
         try {
             $post->save();
             $this->reset();
-            session()->flash('msg', __('Post berhasil ditambahkan'));
+            session()->flash('msg', __('Data berhasil ditambahkan'));
             session()->flash('alert', 'success');
         } catch (\Throwable $th) {
             session()->flash('msg', $th);

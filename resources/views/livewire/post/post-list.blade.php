@@ -1,28 +1,82 @@
 <div>
     <div class="row container">
-        <div class="col-md-8">
+        <div class="col">
+
+            @if(!empty(session('message')))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Selamat!',
+                        text: '{{ session("message") }}',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'OK'
+                    });
+                });
+            </script>
+            @endif
+
             <div class="mb-3 mt-3">
-                <input type="text" placeholder="cari" class="form-control" wire:model="keyword">
+                <button class="btn btn-success" wire:click="downloadExcel"><i class="fas fa-file-excel"></i> Download Excel</button>
+                <input type="text" placeholder="cari kota atau kelompok ..." class="form-control my-2" wire:model="keyword">
             </div>
-            <table class="table table-striped">
-                <thead>
+            <table class="table table-striped table-bordered">
+                <thead class="thead-dark">
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">{{ __('Title') }}</th>
-                        <th scope="col">{{ __('Action') }}</th>
+                        <th scope="col">{{ __('Kota') }}</th>
+                        <th scope="col">{{ __('Desa') }}</th>
+                        <th scope="col">{{ __('kelompok') }}</th>
+                        <th scope="col">{{ __('jumlah') }}</th>
+                        <th scope="col">{{ __('Status') }}</th>
+                        <th scope="col">{{ __('Perolehan') }}</th>
+                        <th scope="col">{{ __('aksi') }}</th>
                     </tr>
                 </thead>
-                <tbody>
+
+                <!-- membuat sortable -->
+                <tbody wire:sortable="updatePostOrder">
                     @if(!empty($posts))
                     @foreach ($posts as $post)
-                    <tr>
+                    <tr wire:sortable.item="{{ $post->id }}" wire:key="post-{{ $post->id }}">
                         <th scope="row">{{ $loop->iteration }}</th>
-                        <td>{{ $post->title }}</td>
+                        <td>{{ $post->kota }}</td>
+                        <td>{{ $post->desa }}</td>
+                        <td wire:sortable.handle role="button">{{ $post->kelompok }}</td>
+                        <td>{{ $post->jumlah }}</td>
+                        <!-- logika status -->
+                        @php
+                        $statusClass = '';
+                        switch ($post->status) {
+                        case 'persiapan':
+                        $statusClass = 'badge-warning';
+                        break;
+                        case 'sedang_tampil':
+                        $statusClass = 'badge-secondary';
+                        break;
+                        case 'selesai':
+                        $statusClass = 'badge-success';
+                        break;
+                        default:
+                        $statusClass = 'badge-info';
+                        break;
+                        }
+                        @endphp
+
                         <td>
-                            <a href="{{ url('post/edit/' . $post->id) }}" class="btn btn-sm btn-primary"><i class="bi bi-pencil-square"></i></a>
-                            <!-- Button trigger modal -->
-                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $post->id }}">
-                                <i class="bi bi-trash3"></i>
+                            <p class="badge {{ $statusClass }}">{{ $post->status }}</p>
+                        </td>
+                        <td>{{ $post->perolehan }}</td>
+                        <td>
+                            <a href="{{ url('post/edit/' . $post->id) }}" class="btn btn-sm btn-primary"><i class="fas fa-tasks"></i></a>
+                            <!-- Button hapus langsung -->
+                            <!-- <button type="button" wire:click="deletePost({{ $post->id }})" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash-alt"></i>
+                            </button> -->
+
+                            <!-- Button hapus pakai modal -->
+                            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal{{ $post->id }}">
+                                <i class="fas fa-trash-alt"></i>
                             </button>
 
                             <!-- Modal -->
@@ -30,19 +84,22 @@
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Hapus data!</h1>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            <h5 class="modal-title" id="exampleModalLabel">Hapus Data</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
                                         </div>
                                         <div class="modal-body">
-                                            Apakah anda yakin ingin menghapus data <b> {{ $post->title }} </b> ?
+                                            Apakah anda yakin ingin menghapus data ini {{ $post->kelompok }}?
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tidak</button>
-                                            <button type="button" wire:click="deletePost({{ $post->id }})" class="btn btn-danger">Hapus</button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+                                            <button type="button" wire:click="deletePost({{ $post->id }})" class="btn btn-danger">Ya</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
                         </td>
                     </tr>
                     @endforeach
